@@ -106,7 +106,9 @@ def wiki_search(question):
 
 def answer_question(question):
     try:
-        app_id = 'R525E8-3QEYA4E69R'
+        app_id = ''    # add your app id into this
+        if not app_id:
+            print 'Add your app id in line no. 110'
         client = wolframalpha.Client(app_id)
         res = client.query(question)
         ans = str(next(res.results).text).replace('.', '.\n')
