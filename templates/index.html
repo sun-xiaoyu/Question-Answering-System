@@ -1,0 +1,81 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block title %}QAS{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <h1><center>Factoid based Question Answering System</center></h1>
+  <hr>
+  <br>
+  <br>
+  <br>
+  <h2 style="color:blue;"><center>What's your Question?</center></h2>
+  <center>
+  {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
+</center>
+</div>
+
+
+<div class="container">           
+  <table class="table table-borderless">
+    <thead>
+      <tr>
+        <th><h3>Geography</h3></th>
+        <th><h3>Science</h3></th>
+	<th><h3>General</h3></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><li>Where is Luanda?</li></td>
+	<td><li>Why is the sky blue?</li></td>
+        <td><li>What instrument does Max Roach play?</li></td>
+      </tr>
+      <tr>
+        <td><li>What is the largest city in Florida?</li></td>
+        <td><li>When was Einstein born?</li></td>
+	<td><li>Who directed Gone with the Wind?</li></td>
+      </tr>
+      <tr>
+        <td><li>How many people live in Israel?</li></td>
+        <td><li>Who invented the telegraph?</li></td>
+	<td><li>When was Beethoven born?</li></td>
+      </tr>
+      <tr>
+	<td><li>What is the capital of Greenland?</li></td>
+	<td><li>What is TCP/IP?</li></td>
+	<td><li>Who wrote the Gift of the Magi?</li></td>
+      </tr>
+      <tr>
+        <td><li>What are tannis?</li></td>
+        <td><li>Who invented the telegraph?</li></td>
+	<td><li>Who directed The Birds?</li></td>
+      </tr>
+      <tr>
+	<td><li>Which is the longest river in the world?</li></td>
+	<td><li>What does obfuscate mean?</li></td>
+	<td><li>Who wrote the music to Star Wars?</li></td>
+      </tr>
+      <tr>
+	<td><li>Where is louvre museum located?</li></td>
+	<td><li>What is the state flower of Montana?</li></td>
+	<td><li>How many people live on earth?</li></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+{% endblock %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+{% endblock %}
+
+
