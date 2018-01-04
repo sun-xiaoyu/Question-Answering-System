@@ -10,8 +10,6 @@ from gevent.pywsgi import WSGIServer
 gevent.monkey.patch_all()
 
 from my_give_answer import answer_question
-#from give_answer import answer_question
-#import give_answer
 import unicodedata
 import wolframalpha
 import wikipedia
@@ -27,7 +25,7 @@ def create_app(configfile=None):
     Bootstrap(app)
 
 
-    app.config['SECRET_KEY']="b'\xa4\xe3]\x7f)\xc5\xfbQ\x9f\x1d{\xfc\xa8\x81J\n"
+    app.config['SECRET_KEY']= ## insert your secret key
 
 
     @app.route('/', methods=('GET', 'POST'))
@@ -64,4 +62,4 @@ if __name__ == '__main__':
     http_server = WSGIServer(('127.0.0.1', 9191), app)
     print("starting server on port 9191")
     http_server.serve_forever()
-    #app.run(debug=True, host='127.0.0.1', port=9191)
+    
