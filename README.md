@@ -1,7 +1,7 @@
 # Question-Answering-System (QAS):
 A factoid based question answering system
 
-![Screenshot of system](https://github.com/Upa005/Question-Answering-System/blob/master/Description/screenshot_of_qas.png)
+<kbd>![Screenshot of system](https://github.com/Upa005/Question-Answering-System/blob/master/Description/screenshot_of_qas.png)</kbd>
 
 QAS is a system that automatically answer questions posed by humans in natural language query. Natural language (e.g. English) is the common way of sharing knowledge.
 
