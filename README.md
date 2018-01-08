@@ -18,3 +18,17 @@ The Question Answering System (QAS):
 ![Block diagram of system](https://github.com/Upa005/Question-Answering-System/blob/master/Description/block_diagram_qas.png)
 
 
+## Please follow these steps to run the program
+
+1. Install python 2.7 to your system
+2. Install the packages givn in the requirements.txt file
+3. Run the program in command prompt containing directory.
+4. Command to run the program
+```
+py -2 app.py
+```
+
+5. Now run the browser and type localhost:5000/
+6. Input your question. (Make sure, you are connected to Internet)
+7. Wait for the answer
+
