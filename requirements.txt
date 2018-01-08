@@ -1,0 +1,12 @@
+nltk
+flask
+gunicorn
+unidecode
+wolframalpha
+wikipedia
+gevent
+flask_bootstrap
+flask_appconfig
+flask_wtf
+wtforms
+google
