@@ -5,7 +5,7 @@ A factoid based question answering system
 
 QAS is a system that automatically answer questions posed by humans in natural language query. Natural language (e.g. English) is the common way of sharing knowledge.
 
-## Characteristicof the factoid based QAS:
+## Characteristics of the factoid based QAS:
 The Question Answering System (QAS):
 * tries to answer factoid based questions.
 * provides concise facts about the question.
