@@ -51,11 +51,16 @@ The Question Answering System (QAS):
 	1. Visit the [Wolframalpha APIs Console](https://products.wolframalpha.com/api/) and log in with your Wolframalpha account.
 
 	2. In the API admin page, you will get your API Key.
+    Find this sentence in the `give_answer.py`
+    ```
+    app_id = ''    # add your app id into this
+    ```
+    Insert your API key here
   
   3. Open Question-Answering-System/app.py program. 
      Search this sentence in the program. (At line number 28)
      ```
-     app.config['SECRET_KEY']= ## insert your secret key
+     app.config['SECRET_KEY']= '' ## insert your secret key
      ```
      Now insert your secret key after '=' sign
      ```
@@ -66,13 +71,13 @@ The Question Answering System (QAS):
 
 
 ## To Run
-1. Install python 2.7 to your system
+1. Install python 3.x to your system
 2. Install the packages givn in the requirements.txt file
 3. Open command prompt.
 4. Go to the directory in command prompt.
 5. Type in command prompt: 
     ```
-    py -2 app.py
+    python app.py
     ```
 6. Now run the browser and type localhost:9191/
 7. Input your question. (Make sure, you are connected to Internet)
