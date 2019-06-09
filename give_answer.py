@@ -44,7 +44,7 @@ def google_search(question):
 
     ss = [tuple(map(str,eachTuple)) for eachTuple in iob_tagged]
     question_type = classify_question(question)
-    print 'question_type: ',question_type
+    print('question_type: ',question_type)
     if question_type == 'None':
         ans = "Oops! I don't know."
     else:
@@ -54,7 +54,7 @@ def google_search(question):
                 if ss[i][2] == 'B-PERSON'or ss[i][2] == 'I-PERSON':
                     google_answer.append(ss[i][0])
         elif question_type == 'Country':
-            print 'country identified'
+            print('country identified')
             for i in range(len(ss)):
                 if ss[i][2] == 'B-GPE'or ss[i][2] == 'I-GPE':
                     google_answer.append(ss[i][0])
@@ -66,16 +66,16 @@ def google_search(question):
             for i in range(len(ss)):
                 if ss[i][2] == 'B-DATE'or ss[i][2] == 'I-DATE':
                     google_answer.append(ss[i][0])
-        print 'google: ',google_answer
+        print('google: ',google_answer)
         if not google_answer:
             ans = "Oops, I don't know! "
         else:
-            print 'inside else'
+            print('inside else')
             counts = collections.Counter(google_answer)
-            print 'counts: ',counts
+            print('counts: ',counts)
             t = counts.most_common(4)
             candidate_answer =  [ seq[0] for seq in t ]
-            print candidate_answer
+            print(candidate_answer)
             #new_list = sorted(google_answer, key=lambda x: -counts[x])
             #print 'new_list',new_list
             #ans = ' '.join(new_list)
@@ -91,7 +91,7 @@ def wiki_search(question):
     if len(l) > 2:
         ques = " ".join(l[2:])
     try:
-        print 'inside wiki search'
+        print('inside wiki search')
         ans = (wikipedia.summary(question, sentences=1)).encode('ascii', 'ignore')
         #ans=re.sub('([(].*?[)])',"",ans)
         #print(ans)
@@ -100,7 +100,7 @@ def wiki_search(question):
         #print ('Refernce: ',link.url)
         #print ans
     except:
-        print 'wiki_search_failed_google'
+        print('wiki_search_failed_google')
         google_search(question)
     return ans
 
@@ -108,41 +108,41 @@ def answer_question(question):
     try:
         app_id = ''    # add your app id into this
         if not app_id:
-            print 'Add your app id in line no. 110'
+            print('Add your app id in line no. 110')
         client = wolframalpha.Client(app_id)
         res = client.query(question)
         ans = str(next(res.results).text).replace('.', '.\n')
 
         if ans == 'None':
-            print 'ans is none'
+            print('ans is none')
             q_type = classify_question(question)
             if q_type == 'Definition' or q_type == 'Location':
-                print 'except-wiki'
+                print('except-wiki')
                 ans = wiki_search(question)
             #if len(question.split())<=5:
             #    print 'none-wiki'
             #    ans = wiki_search(question)
             else:
-                print 'none-google'
+                print('none-google')
                 ans = google_search(question)
-                print 'google answ: ',ans
+                print('google answ: ',ans)
 
         return ans
 
     except:
         try:
-            print 'Exception at first run'
+            print('Exception at first run')
             q_type = classify_question(question)
             if q_type == 'Definition' or q_type == 'Location':
-                print 'except-wiki'
+                print('except-wiki')
                 ans = wiki_search(question)
             #if len(question.split())<=5:
             #    print 'except-wiki'
             #    ans = wiki_search(question)
             else:
-                print 'except-google'
+                print('except-google')
                 ans = google_search(question)
-                print 'google answ: ',ans
+                print('google answ: ',ans)
 
 
 

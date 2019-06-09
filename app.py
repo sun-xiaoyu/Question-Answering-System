@@ -25,7 +25,7 @@ def create_app(configfile=None):
     Bootstrap(app)
 
 
-    app.config['SECRET_KEY']= ## insert your secret key
+    app.config['SECRET_KEY']= '' ## insert your secret key
 
 
     @app.route('/', methods=('GET', 'POST'))
@@ -33,17 +33,17 @@ def create_app(configfile=None):
         if request.method == 'POST':
             try:
                 question = request.form['question']
-            except KeyError, e:
-                print 'key eroor'
-                print 'I got a KeyError - reason "%s"' % str(e)
+            except KeyError as e:
+                print('key eroor')
+                print('I got a KeyError - reason "%s"' % str(e))
             except:
-                print 'I got another exception, but I should re-raise'
+                print('I got another exception, but I should re-raise')
                 raise
 
 
             print(question)
             answer = answer_question(question)
-            print 'answer: ',answer
+            print('answer: ',answer)
             answer=re.sub('([(].*?[)])',"",answer)
 
             return render_template('answer.html', answer=answer, question=question)
