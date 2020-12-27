@@ -1,4 +1,4 @@
-# Question-Answering-System (QAS):
+# Question-Answering-System (QAS): (Application link: wikianswers.herokuapp.com/)
 A factoid based question answering system
 
 <kbd>![Screenshot of system](https://github.com/Upa005/Question-Answering-System/blob/master/Description/screenshot_of_qas.png)</kbd>
