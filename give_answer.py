@@ -9,7 +9,6 @@ import collections
 # Determine the type of question i.e location, date, person ,definiton
 def classify_question(question):
     q = question.lower().split()
-    #print(q[0] ,q[1])
     if q[0] == 'where':
         return 'Location'
     elif 'year'  in question:
@@ -25,7 +24,6 @@ def classify_question(question):
         return 'None'
 
 #===============================================================
-###########################################################################
 def google_search(question):
     first_page = google.search(question,1)
     #print first_page
@@ -36,7 +34,6 @@ def google_search(question):
         i+=1
 
     first_search = ''.join(top_three_result).encode('ascii','replace')
-    #print first_search
 
     ne_tree = (ne_chunk(pos_tag(word_tokenize(first_search))))
 
@@ -76,9 +73,6 @@ def google_search(question):
             t = counts.most_common(4)
             candidate_answer =  [ seq[0] for seq in t ]
             print candidate_answer
-            #new_list = sorted(google_answer, key=lambda x: -counts[x])
-            #print 'new_list',new_list
-            #ans = ' '.join(new_list)
             for i in range(len(candidate_answer)):
                 candidate_answer[i] = 'Candidate Answer '+ str(i+1)+' '+ candidate_answer[i]
             candidate_answer = '\n'.join(candidate_answer)
@@ -93,12 +87,8 @@ def wiki_search(question):
     try:
         print 'inside wiki search'
         ans = (wikipedia.summary(question, sentences=1)).encode('ascii', 'ignore')
-        #ans=re.sub('([(].*?[)])',"",ans)
-        #print(ans)
         link = wikipedia.page(ques)
         ans = ans + '\n For more information: '+link.url
-        #print ('Refernce: ',link.url)
-        #print ans
     except:
         print 'wiki_search_failed_google'
         google_search(question)
@@ -119,9 +109,6 @@ def answer_question(question):
             if q_type == 'Definition' or q_type == 'Location':
                 print 'except-wiki'
                 ans = wiki_search(question)
-            #if len(question.split())<=5:
-            #    print 'none-wiki'
-            #    ans = wiki_search(question)
             else:
                 print 'none-google'
                 ans = google_search(question)
@@ -136,16 +123,10 @@ def answer_question(question):
             if q_type == 'Definition' or q_type == 'Location':
                 print 'except-wiki'
                 ans = wiki_search(question)
-            #if len(question.split())<=5:
-            #    print 'except-wiki'
-            #    ans = wiki_search(question)
             else:
                 print 'except-google'
                 ans = google_search(question)
                 print 'google answ: ',ans
-
-
-
             return ans
         except:
                return "Oops! I don't know. Try something else"
