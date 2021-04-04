@@ -1,18 +1,28 @@
+import re
+import gevent.monkey
+from gevent.pywsgi import WSGIServer
+import logging
+
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_wtf import Form, RecaptchaField
 from wtforms import TextField, HiddenField, ValidationError, RadioField, BooleanField, SubmitField
 from wtforms.validators import Required
-import re
-import gevent.monkey
-from gevent.pywsgi import WSGIServer
-gevent.monkey.patch_all()
+from qasystem import QAsystem
 
-from give_answer import answer_question
-import unicodedata
-import wolframalpha
-import wikipedia
+qa = QAsystem()
+gevent.monkey.patch_all()
+# from give_answer import answer_question
+# import unicodedata
+# import wolframalpha
+# import wikipedia
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 
 class ExampleForm(Form):
     question = TextField('', description='', validators=[Required()])
@@ -25,7 +35,7 @@ def create_app(configfile=None):
     Bootstrap(app)
 
 
-    app.config['SECRET_KEY']= ## insert your secret key
+    app.config['SECRET_KEY']= '3V3PT7-TXHKXVKX82'## insert your secret key
 
 
     @app.route('/', methods=('GET', 'POST'))
@@ -33,17 +43,18 @@ def create_app(configfile=None):
         if request.method == 'POST':
             try:
                 question = request.form['question']
-            except KeyError, e:
-                print 'key eroor'
-                print 'I got a KeyError - reason "%s"' % str(e)
+            except KeyError:
+                print('key eroor')
+                print('I got a KeyError - reason')
             except:
-                print 'I got another exception, but I should re-raise'
+                print('I got another exception, but I should re-raise')
                 raise
 
 
-            print(question)
-            answer = answer_question(question)
-            print 'answer: ',answer
+            logging.info(question)
+            # answer = answer_question(question)
+            answer = qa.ask(question)
+            logging.info(answer)
             answer=re.sub('([(].*?[)])',"",answer)
 
             return render_template('answer.html', answer=answer, question=question)
@@ -59,7 +70,7 @@ def create_app(configfile=None):
 app = create_app()
 
 if __name__ == '__main__':
-    http_server = WSGIServer(('127.0.0.1', 9191), app)
-    print("starting server on port 9191")
+    http_server = WSGIServer(('127.0.0.1', 5666), app)
+    print("starting debug server on port 5666")
     http_server.serve_forever()
-    
+
