@@ -22,7 +22,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
-
+logger = logging.getLogger(__name__)
 
 class ExampleForm(Form):
     question = TextField('', description='', validators=[Required()])
@@ -68,6 +68,7 @@ def create_app(configfile=None):
 
 # create main callable
 app = create_app()
+app.logger.setLevel(logging.INFO)
 
 if __name__ == '__main__':
     http_server = WSGIServer(('127.0.0.1', 5666), app)
