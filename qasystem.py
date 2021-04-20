@@ -7,7 +7,13 @@ import logging
 
 from wikipedia.exceptions import DisambiguationError
 
+logging.basicConfig(
+    format='%(asctime)s %(levelname)s  %(name)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 logger = logging.getLogger(__name__)
+
 
 requests.adapters.DEFAULT_RETRIES = 5
 
@@ -16,6 +22,11 @@ requests.adapters.DEFAULT_RETRIES = 5
 # 执行命令，和传统方法一样
 # stdin, stdout, stderr = ssh.exec_command('ls')
 # print(stdout.read().decode())
+
+# todo important use this line to open ssl port forwarding:
+'''
+ssh -L localhost:5667:localhost:5666 sunxy-s18@10.134.171.215 -p 2222
+'''
 
 _SPECIAL_TOKENS_RE = re.compile(r"^\[[^ ]*\]$", re.UNICODE)
 tags_to_keep = ["<Table>", "<P>", "<Ul>", "<Dl>", "<Ol>", "<Tr>", "<Li>", "<Dd>", "<Dt>"]
@@ -38,6 +49,7 @@ def clean_html(html):
     html = re.sub('<Ul>', '[List] ', html)
     html = re.sub('<Dl>', '[List] ', html)
     html = re.sub('<Ol>', '[List] ', html)
+    html = re.sub('<h2>', '[h2] ', html)
     html = _HTML_TAGS_RE.sub(' ', html)
     html = re.sub('-', ' - ', html)
     html = re.sub(r"\'", "'", html)
@@ -48,17 +60,6 @@ def clean_html(html):
     html = re.sub(r'\[ edit \]', ' ', html)
     return html
 
-'''
-{'answer': {'ans_type_pred_cls': 1, 
-            'answer_type_logits': [0.46426963806152344, 3.712430477142334, 0.452737420797348, 
-                                   -15.273842811584473, -14.505642890930176], 
-            'answer_type_probs': [0.03606009483337402, 0.9282933473587036, 0.03564663231372833,
-                                  5.272926095756247e-09, 1.1367807140061359e-08], 
-            'best_span': [147, 148], 'best_span_orig': [547, 548], 
-            'best_span_scores': 8.108234405517578, 'best_span_str': 'John Williams,'}, 
- 'question': 'Who wrote the music to Star Wars?', 'str': 'html:The Star Wars franchise h'
-                                                         'as spawned multiple live-'}
-'''
 
 
 def find_long_ans(span, html):
@@ -70,7 +71,7 @@ def find_long_ans(span, html):
             la = special_token_pos[i-1], special_token_pos[i] - 1
             long_ans = ' '.join(html_tokens[la[0]: la[1] + 1])
             return long_ans, la
-    return "N/A. Can't map back to a long ans", (-1,-1)
+    return "N/A. Can't map back to a long answer.", (-1,-1)
 
 
 
@@ -78,6 +79,7 @@ def post_process(js, html):
     # js = json.loads(raw_output)
     ans = js['answer']
     answerability_probs = ans['answer_type_probs'][:3]
+    answerability_probs = [round(x, 4) for x in answerability_probs]
     sa_span = ans['best_span_orig']
     short_ans = ans['best_span_str']
     if short_ans == '':
@@ -86,10 +88,11 @@ def post_process(js, html):
         return short_ans, long_ans, answerability_probs, yn_probs
 
     long_ans, la_span = find_long_ans(sa_span, html)
-    # yn_probs = ans['yn_probs']
-    # yn_ans = ans['yn_ans']
-    yn_probs = '1 1 1'
-    yn_ans = 'NONE'
+    # yn_probs = '1 1 1'
+    # yn_ans = 'NONE'
+    yn_ans = ans['yn_ans']
+    yn_probs = ans['yn_probs'][2:]
+    yn_probs = [round(x, 4) for x in yn_probs]
     if yn_ans != 'NONE':
         short_ans = yn_ans
     if la_span[0] == sa_span[0] - 1 and la_span[1] == sa_span[1]:
@@ -120,30 +123,70 @@ class QAsystem(object):
     def __del__(self):
         self.trans.close()
 
-    def ask(self, question: str = "Why is the sky blue?"):
+    def ask(self, question: str = "Why is the sky blue?", reference_url=None):
         # prefix = '''curl -X POST --header "Content-Type: application/json" --data \''''
         # postfix = '''\' 127.0.0.1:5666/predict'''
         # prefixf = '''curl -X POST --header "Content-Type: application/json" --data @'''
         # postfixf = ''' 127.0.0.1:5666/predict'''
-        logging.info(question)
-        try:
-            page = get_wiki_page(question)
-        except DisambiguationError as e:
-            return f'Your question is ambiguous.\n{e.title} may refer to: {e.options}'
-        if not page:
-            return 'No related Wikipedia pages are found.\n You may consider another question or refer to an example on the home page.'
-        # html = '<html><\html><html><\html><html><\html><html><\html>'
-        # todo
-        if self.use_text:
-            cleaned_html = page.content
+        logger.info(f'Reference: {reference_url}')
+        logger.info(question)
+        if reference_url is not None:
+            if 'http' in reference_url or 'wikipedia' in reference_url:
+                r = requests.get(reference_url)
+                html = r.text
+                with open('user_defined_html.log', 'w+', encoding='utf-8') as f:
+                    f.write(question + '\n')
+                    f.write(html + '\n'*5+'{{{sep}}}'+'\n'*5)
+                cleaned_html = clean_html(html)
+                print("here1")
+                d = re.search('<\W*title\W*(.*)</title', html, re.IGNORECASE)
+                try:
+                    title = d.group(1)
+                except:
+                    title = ''
+                    logger.info('title not found')
+                url = reference_url
+            else:
+                # input is a title
+                try:
+                    page = wiki.page(reference_url)
+                    print("here2")
+                except DisambiguationError as e:
+                    return f'Your question is ambiguous.\n{e.title} may refer to: {e.options}'
+                if not page:
+                    return 'No related Wikipedia pages are found.\n You may consider another question or refer to an example on the home page.'
+                # html = '<html><\html><html><\html><html><\html><html><\html>'
+                # todo
+                if self.use_text:
+                    cleaned_html = page.content
+                else:
+                    html = page.html()
+                    cleaned_html = clean_html(html)
+                title = page.title
+                url = page.url
         else:
-            html = page.html()
-            cleaned_html = clean_html(html)
+            try:
+                page = get_wiki_page(question)
+                print("here3")
+            except DisambiguationError as e:
+                return f'Your question is ambiguous.\n{e.title} may refer to: {e.options}'
+            if not page:
+                return 'No related Wikipedia pages are found.\n ' \
+                       'You may consider another question or refer to an example on the home page.'
+            # html = '<html><\html><html><\html><html><\html><html><\html>'
+            # todo
+            if self.use_text:
+                cleaned_html = page.content
+            else:
+                html = page.html()
+                cleaned_html = clean_html(html)
+            title = page.title
+            url = page.url
         js = {
             "question": question,
             "html": cleaned_html,
         }
-        logging.info(cleaned_html[:50])
+        logger.info(cleaned_html[:50])
         # js_str = json.dumps(js, ensure_ascii=False)
         # with open('D://body.json', 'w', encoding='utf-8') as f:
         #     f.write(js_str)
@@ -157,11 +200,11 @@ class QAsystem(object):
         # raw_output = stdout.read().decode()
         returned = requests.post('http://localhost:5667/predict', json=js)
         returned_js = returned.json()
+        # logger.info(returned_js)
         print(returned_js)
-        print(type(returned_js))
         sa, la, prob_ans, prob_yn = post_process(returned_js, cleaned_html)
         # return_str = page.title + '\t' + page.url + '\n' + ans
-        return_str = f'Most related entry: \t{page.title} \n URL: \t{page.url}\n\n ' \
+        return_str = f'Most related entry: \t{title} \n URL: \t{url}\n\n ' \
                      f'Answerbility score [no-ans vs short vs long]: {prob_ans}\n\n' \
                      f'Long answer: {la}\n\n' \
                      f'Short answer: {sa}\n\n' \

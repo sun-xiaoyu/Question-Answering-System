@@ -6,63 +6,63 @@ import logging
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
-from flask_wtf import Form, RecaptchaField
-from wtforms import TextField, HiddenField, ValidationError, RadioField, BooleanField, SubmitField
-from wtforms.validators import Required
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 from qasystem import QAsystem
 
 qa = QAsystem()
 gevent.monkey.patch_all()
-# from give_answer import answer_question
-# import unicodedata
-# import wolframalpha
-# import wikipedia
 
-logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
 
-class ExampleForm(Form):
-    question = TextField('', description='', validators=[Required()])
+class ExampleForm(FlaskForm):
+    question = StringField('', description='', validators=[DataRequired()])
     submit_button = SubmitField('Go')
+
+
+class ExampleForm1(FlaskForm):
+    reference_page_url = StringField('', description='', validators=[DataRequired()])
+    submit_button = SubmitField('Search here')
 
 
 def create_app(configfile=None):
     app = Flask(__name__)
     AppConfig(app, configfile)
     Bootstrap(app)
-
-
-    app.config['SECRET_KEY']= '3V3PT7-TXHKXVKX82'## insert your secret key
-
+    question_asked = []
+    app.config['SECRET_KEY']= '3V3PT7-TXHKXVKX82'
 
     @app.route('/', methods=('GET', 'POST'))
     def index():
         if request.method == 'POST':
+            reference_page_url = None
             try:
                 question = request.form['question']
             except KeyError:
-                print('key eroor')
-                print('I got a KeyError - reason')
-            except:
-                print('I got another exception, but I should re-raise')
-                raise
+                app.logger.info("No questions are given, try the 2nd route")
 
+                try:
+                    question = question_asked[-1]
+                    reference_page_url = request.form['reference_page_url']
+                    app.logger.info(f"User has given a reference page: {reference_page_url}")
+                except:
+                    print('I got another exception that I cannot explain')
+                    raise
 
-            logging.info(question)
-            # answer = answer_question(question)
-            answer = qa.ask(question)
-            logging.info(answer)
-            answer=re.sub('([(].*?[)])',"",answer)
+            app.logger.info(question)
+            if not reference_page_url:
+                question_asked.append(question)
+                answer = qa.ask(question)
+            else:
+                answer = qa.ask(question, reference_page_url)
+            app.logger.info(re.sub('\n\n', '\n', answer))
+            answer = re.sub('([(].*?[)])', "", answer)
 
-            return render_template('answer.html', answer=answer, question=question)
+            form1 = ExampleForm1()
+            return render_template('answer.html', answer=answer, question=question, form=form1)
 
         form = ExampleForm()
         return render_template('index.html', form=form)
-
-
 
     return app
 

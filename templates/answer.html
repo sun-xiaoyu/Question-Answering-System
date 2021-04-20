@@ -2,7 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "bootstrap/fixes.html" as fixes %}
 
-{% block title %}Inquire{% endblock %}
+{% block title %}NQAS answer{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -15,7 +15,7 @@
   <div class="well">
   {{ question }}
 </div>
-  <h2 style="color:blue;">Answer</h2>
+  <h2 style="color:#0000ff;">Answer</h2>
   </center>
 
   <div class="well well-sm">
@@ -28,6 +28,11 @@
   <br>
 
   <a href = "/" class = "btn btn-info" role="button">Ask another question</a>
+  <br>
+  <br>
+  <p><center>Not satisfied with the page retrieved? Enter the page you want to search within:</center></p>
+
+  {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
 </center>
 </div>
 {% endblock %}
